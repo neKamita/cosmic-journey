@@ -24,7 +24,10 @@ import { Uranus } from './scenes/uranus';
 import { Mercury } from './scenes/mercury';
 import { Moon } from './scenes/moon';
 import { Venus } from './scenes/venus';
-import { Placeholders } from './scenes/placeholders';
+import { CosmicWeb } from './scenes/cosmicWeb';
+import { MilkyWay } from './scenes/galaxy';
+import { GalaxyCluster } from './scenes/galaxyCluster';
+import { Nebula } from './scenes/nebula';
 import { SceneDirector } from './scenes/SceneDirector';
 import { Starfield } from './scenes/starfield';
 import { Sun } from './scenes/sun';
@@ -86,30 +89,32 @@ async function boot(): Promise<void> {
   const nav = new ProgressNav(qs<HTMLElement>('#progress-nav'), scroll);
   const accent = new AccentColor();
 
-  const placeholders = new Placeholders();
+  // Modules in route order: their textures stream in this order too.
   const sun = new Sun(quality);
-  director.add(new Starfield(quality));
-  director.add(sun);
-  director.add(new Earth(quality));
-  director.add(new Moon(quality));
-  director.add(new Mercury(quality));
-  director.add(new Venus(quality));
-  director.add(new Mars(quality));
-  director.add(new AsteroidBelt(quality));
-  director.add(new Comets(quality));
-  director.add(new Jupiter(quality));
-  director.add(new Saturn(quality));
-  director.add(new Uranus(quality));
-  director.add(new Neptune(quality));
-  director.add(new Heliosphere());
   const blackHole = new BlackHole();
-  director.add(blackHole);
-  placeholders.remove('blackhole');
-  placeholders.remove('blackhole-disk');
-  for (const id of ['sun', 'earth', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune']) {
-    placeholders.remove(id);
+  for (const module of [
+    new Starfield(quality),
+    sun,
+    new Earth(quality),
+    new Moon(quality),
+    new Mercury(quality),
+    new Venus(quality),
+    new Mars(quality),
+    new AsteroidBelt(quality),
+    new Comets(quality),
+    new Jupiter(quality),
+    new Saturn(quality),
+    new Uranus(quality),
+    new Neptune(quality),
+    new Heliosphere(),
+    blackHole,
+    new MilkyWay(quality),
+    new Nebula(quality),
+    new GalaxyCluster(quality),
+    new CosmicWeb(quality),
+  ]) {
+    director.add(module);
   }
-  director.add(placeholders);
 
   scroll.onMeasure((ranges) => {
     path.resolve(ranges);
@@ -148,6 +153,7 @@ async function boot(): Promise<void> {
     env: env.state,
     quality,
     motion: reducedMotion ? 0.2 : 1,
+    viewportHeight: core.size.height,
   };
 
   const applyQuality = (tier: Tier): void => {
@@ -178,6 +184,7 @@ async function boot(): Promise<void> {
     const chapter = chapterAt(p, scroll.ranges);
     ctx.chapter = chapter.id;
     ctx.chapterLocal = chapter.local;
+    ctx.viewportHeight = core.size.height;
 
     path.sample(p, sample);
     const camera = core.camera;

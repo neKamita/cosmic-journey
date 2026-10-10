@@ -63,6 +63,17 @@ export const GALAXY = {
   orientation: new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), diskNormal),
 } as const;
 
+/** World point around the galactic centre in the disk frame: azimuth in the disk, elevation above it. */
+export function galacticPoint(distance: number, azimuthDeg: number, elevationDeg: number): Vector3 {
+  const az = (azimuthDeg * Math.PI) / 180;
+  const el = (elevationDeg * Math.PI) / 180;
+  const u = GALAXY.toSun.clone();
+  const v = new Vector3().crossVectors(GALAXY.normal, u).normalize();
+  const inPlane = u.multiplyScalar(Math.cos(az)).addScaledVector(v, Math.sin(az));
+  const dir = inPlane.multiplyScalar(Math.cos(el)).addScaledVector(GALAXY.normal, Math.sin(el));
+  return GALAXY.center.clone().addScaledVector(dir, distance);
+}
+
 export const BLACK_HOLE = {
   position: GALACTIC_CENTER,
   /** Schwarzschild radius in scene units. */

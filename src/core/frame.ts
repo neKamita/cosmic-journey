@@ -20,4 +20,6 @@ export interface FrameContext {
   quality: QualitySettings;
   /** 1 normally; reduced under prefers-reduced-motion to slow autonomous animation. */
   motion: number;
+  /** Canvas height in CSS pixels (for world-sized point sprites). */
+  viewportHeight: number;
 }

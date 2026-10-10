@@ -24,6 +24,11 @@ export interface EnvState {
   deepScale: number;
   godRays: number;
   lens: number;
+  /** Opacity of the deep-space layers. */
+  galaxy: number;
+  nebula: number;
+  cluster: number;
+  web: number;
   accent: Color;
 }
 
@@ -41,8 +46,8 @@ const KEYS = {
     n('inner', 0.25, 0.75),
     n('heliopause', 0.2, 1.1),
     n('blackhole', 0.2, 1.5),
-    n('galaxy', 0.3, 1.25),
-    n('universe', 0.3, 1.1),
+    n('galaxy', 0.3, 0.7),
+    n('universe', 0.3, 0.9),
   ],
   background: [
     c('earth', 0, '#020309'),
@@ -52,8 +57,8 @@ const KEYS = {
     c('ice', 0.2, '#01060c'),
     c('heliopause', 0.2, '#010207'),
     c('blackhole', 0.2, '#000000'),
-    c('galaxy', 0.3, '#02010a'),
-    c('universe', 0.3, '#010104'),
+    c('galaxy', 0.3, '#010006'),
+    c('universe', 0.3, '#000003'),
   ],
   tint: [
     c('earth', 0, '#ffffff'),
@@ -92,6 +97,10 @@ const KEYS = {
   ],
   godRays: [n('moon', 0.5, 0), n('sun', 0.08, 0.75), n('sun', 0.62, 0.75), n('inner', 0.08, 0)],
   lens: [n('heliopause', 0.75, 0), n('blackhole', 0.05, 1), n('blackhole', 0.8, 1), n('galaxy', 0.08, 0)],
+  galaxy: [n('heliopause', 0.6, 0), n('blackhole', 0, 1), n('galaxy', 0.85, 1), n('universe', 0.3, 0.75)],
+  nebula: [n('blackhole', 0.75, 0), n('galaxy', 0.04, 1), n('galaxy', 0.2, 1), n('galaxy', 0.4, 0)],
+  cluster: [n('galaxy', 0.45, 0), n('galaxy', 0.7, 1), n('universe', 0.35, 0.65)],
+  web: [n('galaxy', 0.8, 0), n('universe', 0.2, 1)],
   accent: CHAPTERS.map((ch) => c(ch.id, ch.focus, ch.accent)),
 } as const;
 
@@ -115,6 +124,10 @@ export class EnvTimeline {
       ['deepScale', new NumberTrack(KEYS.deepScale, ranges, 'log')],
       ['godRays', new NumberTrack(KEYS.godRays, ranges)],
       ['lens', new NumberTrack(KEYS.lens, ranges)],
+      ['galaxy', new NumberTrack(KEYS.galaxy, ranges)],
+      ['nebula', new NumberTrack(KEYS.nebula, ranges)],
+      ['cluster', new NumberTrack(KEYS.cluster, ranges)],
+      ['web', new NumberTrack(KEYS.web, ranges)],
     ];
     this.colors = [
       ['background', new ColorTrack(KEYS.background, ranges)],
@@ -137,6 +150,10 @@ export class EnvTimeline {
       deepScale: 1,
       godRays: 0,
       lens: 0,
+      galaxy: 0,
+      nebula: 0,
+      cluster: 0,
+      web: 0,
       accent: new Color(),
     };
   }

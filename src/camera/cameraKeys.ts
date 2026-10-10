@@ -15,6 +15,7 @@ import {
   SUN,
   URANUS,
   VENUS,
+  galacticPoint,
   polar,
   type BodyLayout,
 } from '../config/layout';
@@ -35,16 +36,7 @@ function viewFrom(body: BodyLayout, distance: number, sun: number, side: number,
   return body.position.clone().addScaledVector(dir, distance);
 }
 
-/** Position around the galactic centre in the disk frame: azimuth in the disk, elevation above it. */
-function galactic(distance: number, azimuthDeg: number, elevationDeg: number): Vector3 {
-  const az = (azimuthDeg * Math.PI) / 180;
-  const el = (elevationDeg * Math.PI) / 180;
-  const u = GALAXY.toSun.clone();
-  const v = new Vector3().crossVectors(GALAXY.normal, u).normalize();
-  const inPlane = u.multiplyScalar(Math.cos(az)).addScaledVector(v, Math.sin(az));
-  const dir = inPlane.multiplyScalar(Math.cos(el)).addScaledVector(GALAXY.normal, Math.sin(el));
-  return GALAXY.center.clone().addScaledVector(dir, distance);
-}
+const galactic = galacticPoint;
 
 type KeyOptions = Omit<CameraKey, 'at' | 'position' | 'target'>;
 
@@ -124,11 +116,11 @@ export const CAMERA_KEYS: readonly CameraKey[] = [
   key('blackhole', 0.55, galactic(140, 50, 4), BLACK_HOLE.position),
 
   // 12. Pull out of the galaxy (geometric spacing keeps the zoom rate even), then out to the cluster.
-  key('galaxy', 0.06, galactic(1500, 70, 30), BLACK_HOLE.position, { stop: false, near: 2, far: 300000 }),
-  key('galaxy', 0.14, galactic(7000, 85, 36), GALAXY.center, { stop: false }),
-  key('galaxy', 0.3, galactic(40000, 95, 28), GALAXY.center, { near: 10 }),
-  key('galaxy', 0.62, galactic(46000, 110, 32), GALAXY.center, { stop: false }),
-  key('galaxy', 0.85, galactic(48000, 120, 35), GALAXY.center),
+  key('galaxy', 0.06, galactic(1500, 60, 58), BLACK_HOLE.position, { stop: false, near: 2, far: 300000 }),
+  key('galaxy', 0.14, galactic(7000, 80, 50), GALAXY.center, { stop: false }),
+  key('galaxy', 0.3, galactic(54000, 95, 34), GALAXY.center, { near: 10 }),
+  key('galaxy', 0.62, galactic(52000, 110, 36), GALAXY.center, { stop: false }),
+  key('galaxy', 0.85, galactic(50000, 120, 38), GALAXY.center),
 
   // 13. The cosmic web.
   key('universe', 0.3, galactic(50000, 135, 30), GALAXY.center, { far: 400000 }),
