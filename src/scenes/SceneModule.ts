@@ -29,5 +29,7 @@ export interface SceneModule {
   init?(ctx: InitContext): void | Promise<void>;
   update(ctx: FrameContext): void;
   setQuality?(quality: QualitySettings): void;
+  /** For screen-space sized content (points, sprites). */
+  setPixelRatio?(dpr: number): void;
   shadowFocus?(): ShadowFocus | null;
 }

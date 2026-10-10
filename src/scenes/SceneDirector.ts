@@ -92,6 +92,10 @@ export class SceneDirector {
     for (const entry of this.entries) entry.module.setQuality?.(quality);
   }
 
+  setPixelRatio(dpr: number): void {
+    for (const entry of this.entries) entry.module.setPixelRatio?.(dpr);
+  }
+
   private updateLight(ctx: FrameContext, focus: ShadowFocus | null): void {
     const center = focus?.center ?? ctx.cameraTarget;
     this.lightDir.copy(center).sub(SUN.position);

@@ -37,7 +37,7 @@ const KEYS = {
   exposure: [n('earth', 0, 1), n('sun', 0.18, 0.85), n('inner', 0.2, 1), n('blackhole', 0.2, 1.1), n('galaxy', 0.3, 1.2), n('universe', 0.3, 1.3)],
   bloom: [
     n('earth', 0, 0.55),
-    n('sun', 0.18, 1.35),
+    n('sun', 0.18, 0.8),
     n('inner', 0.25, 0.75),
     n('heliopause', 0.2, 1.1),
     n('blackhole', 0.2, 1.5),
@@ -80,7 +80,7 @@ const KEYS = {
     n('galaxy', 0.2, 0),
   ],
   nearStars: [n('earth', 0, 0.45), n('heliopause', 0.2, 0.6), n('blackhole', 0.2, 0.3), n('galaxy', 0.06, 0)],
-  milkyWay: [n('earth', 0, 0.7), n('sun', 0.18, 0.35), n('mars', 0.2, 0.75), n('heliopause', 0.2, 0.95), n('blackhole', 0.15, 0.25), n('galaxy', 0.1, 0)],
+  milkyWay: [n('earth', 0, 0.45), n('sun', 0.18, 0.25), n('mars', 0.2, 0.75), n('heliopause', 0.2, 0.95), n('blackhole', 0.15, 0.25), n('galaxy', 0.1, 0)],
   ambient: [n('earth', 0, 0.035), n('blackhole', 0.2, 0.02)],
   vignette: [n('earth', 0, 0.38), n('sun', 0.18, 0.25), n('blackhole', 0.2, 0.55), n('galaxy', 0.3, 0.4), n('universe', 0.3, 0.5)],
   aberration: [n('earth', 0, 0.0005), n('asteroids', 0.24, 0.0009), n('jupiter', 0.18, 0.0005), n('blackhole', 0.3, 0.0013), n('galaxy', 0.3, 0.0006)],
@@ -90,7 +90,7 @@ const KEYS = {
     { at: at('galaxy', 0.85), value: 0.06, ease: linear },
     { at: at('universe', 0.3), value: 0.0025 },
   ],
-  godRays: [n('moon', 0.5, 0), n('sun', 0.08, 1), n('sun', 0.62, 1), n('inner', 0.08, 0)],
+  godRays: [n('moon', 0.5, 0), n('sun', 0.08, 0.75), n('sun', 0.62, 0.75), n('inner', 0.08, 0)],
   lens: [n('heliopause', 0.75, 0), n('blackhole', 0.05, 1), n('blackhole', 0.8, 1), n('galaxy', 0.08, 0)],
   accent: CHAPTERS.map((ch) => c(ch.id, ch.focus, ch.accent)),
 } as const;

@@ -16,6 +16,8 @@ import { Moon } from './scenes/moon';
 import { Placeholders } from './scenes/placeholders';
 import { SceneDirector } from './scenes/SceneDirector';
 import { Starfield } from './scenes/starfield';
+import { Sun } from './scenes/sun';
+import { PostFX } from './core/postfx';
 import { ScrollController } from './scroll/scrollController';
 import { CHAPTERS, type ChapterId } from './config/chapters';
 import { AccentColor } from './ui/accent';
@@ -73,13 +75,13 @@ async function boot(): Promise<void> {
   const nav = new ProgressNav(qs<HTMLElement>('#progress-nav'), scroll);
   const accent = new AccentColor();
 
-  const starfield = new Starfield(quality);
   const placeholders = new Placeholders();
-  director.add(starfield);
+  const sun = new Sun(quality);
+  director.add(new Starfield(quality));
+  director.add(sun);
   director.add(new Earth(quality));
   director.add(new Moon(quality));
-  placeholders.remove('earth');
-  placeholders.remove('moon');
+  for (const id of ['sun', 'earth', 'moon']) placeholders.remove(id);
   director.add(placeholders);
 
   scroll.onMeasure((ranges) => {
@@ -90,13 +92,21 @@ async function boot(): Promise<void> {
   });
 
   core.resize();
-  starfield.setPixelRatio(core.size.dpr);
+  director.setPixelRatio(core.size.dpr);
 
   const assets = new AssetLibrary(core.renderer, quality);
   await assets.preloadCritical((f) => loader.setProgress(0.08 + f * 0.62, 'загружаем Землю и Луну'));
   loader.setProgress(0.72, 'строим Солнечную систему');
   await director.init({ renderer: core.renderer, quality, assets });
   loader.setProgress(0.85, 'компилируем шейдеры');
+
+  const createPostFX = (q: typeof quality): PostFX | null => {
+    if (!q.postfx) return null;
+    const fx = new PostFX(core.renderer, core.scene, core.camera, q, sun.lightSource, reducedMotion);
+    fx.setSize(core.size.width, core.size.height);
+    return fx;
+  };
+  let postfx = createPostFX(quality);
 
   const sample = createCameraSample();
   const ctx: FrameContext = {
@@ -117,8 +127,15 @@ async function boot(): Promise<void> {
     ctx.quality = quality;
     core.applyQuality(quality);
     director.setQuality(quality);
+    director.setPixelRatio(core.size.dpr);
     assets.setQuality(quality);
-    starfield.setPixelRatio(core.size.dpr);
+    if (!quality.postfx && postfx) {
+      postfx.dispose();
+      postfx = null;
+    } else if (postfx) {
+      postfx.setQuality(quality);
+      postfx.setSize(core.size.width, core.size.height);
+    }
   };
   const governor = new FpsGovernor(quality.tier, applyQuality);
 
@@ -149,7 +166,12 @@ async function boot(): Promise<void> {
     core.renderer.toneMappingExposure = state.exposure;
 
     director.update(ctx);
-    core.renderer.render(core.scene, camera);
+    if (postfx) {
+      postfx.update(state);
+      postfx.render(dt);
+    } else {
+      core.renderer.render(core.scene, camera);
+    }
 
     distance.update(p);
     nav.update(chapter.id, p);
@@ -159,7 +181,9 @@ async function boot(): Promise<void> {
   };
 
   window.addEventListener('resize', () => {
-    if (core.resize()) starfield.setPixelRatio(core.size.dpr);
+    if (!core.resize()) return;
+    director.setPixelRatio(core.size.dpr);
+    postfx?.setSize(core.size.width, core.size.height);
   });
 
   scroll.init();
