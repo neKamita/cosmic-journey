@@ -7,6 +7,8 @@ export default defineConfig({
       include: ['**/*.glsl', '**/*.vert', '**/*.frag'],
       minify: true,
       watch: true,
+      removeDuplicatedImports: true,
+      warnDuplicatedImports: false,
     }),
   ],
   build: {
