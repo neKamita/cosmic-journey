@@ -11,6 +11,8 @@ import { FpsGovernor, QUALITY, detectTier, readDeviceInfo, tierFromQuery, type T
 import { AssetLibrary } from './core/assets';
 import type { FrameContext } from './core/frame';
 import { createRenderCore } from './core/renderer';
+import { Earth } from './scenes/earth';
+import { Moon } from './scenes/moon';
 import { Placeholders } from './scenes/placeholders';
 import { SceneDirector } from './scenes/SceneDirector';
 import { Starfield } from './scenes/starfield';
@@ -72,8 +74,13 @@ async function boot(): Promise<void> {
   const accent = new AccentColor();
 
   const starfield = new Starfield(quality);
+  const placeholders = new Placeholders();
   director.add(starfield);
-  director.add(new Placeholders());
+  director.add(new Earth(quality));
+  director.add(new Moon(quality));
+  placeholders.remove('earth');
+  placeholders.remove('moon');
+  director.add(placeholders);
 
   scroll.onMeasure((ranges) => {
     path.resolve(ranges);
@@ -135,6 +142,7 @@ async function boot(): Promise<void> {
     camera.far = sample.far;
     core.applyFraming(sample.frame);
     camera.updateProjectionMatrix();
+    camera.updateMatrixWorld();
 
     const state = env.sample(p);
     core.renderer.setClearColor(state.background, 1);
