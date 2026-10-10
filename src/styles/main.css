@@ -323,7 +323,6 @@ a {
   position: relative;
   isolation: isolate;
   max-width: 36rem;
-  will-change: opacity, transform;
 }
 
 .chapter__content::before {
@@ -332,6 +331,7 @@ a {
   inset: -22% -26%;
   z-index: -1;
   background: radial-gradient(closest-side, rgb(3 4 10 / 0.62), rgb(3 4 10 / 0.34) 58%, transparent);
+  opacity: var(--scrim, 1);
   pointer-events: none;
 }
 
@@ -483,8 +483,16 @@ a {
 }
 
 /* Hidden-until-revealed state is opt-in, so content stays readable without JS. */
-html.js .chapter__content {
+html.js .chapter:not(.chapter--hero) .chapter__content > * {
   opacity: 0;
+}
+
+html.js .chapter:not(.chapter--hero) .chapter__content {
+  --scrim: 0;
+}
+
+html.js .chapter__content > * {
+  will-change: opacity, transform, filter;
 }
 
 /* ---------- Small screens ---------- */

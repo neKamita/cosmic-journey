@@ -14,7 +14,12 @@ import { Placeholders } from './scenes/placeholders';
 import { SceneDirector } from './scenes/SceneDirector';
 import { Starfield } from './scenes/starfield';
 import { ScrollController } from './scroll/scrollController';
-import type { ChapterId } from './config/chapters';
+import { CHAPTERS, type ChapterId } from './config/chapters';
+import { AccentColor } from './ui/accent';
+import { DistanceCounter } from './ui/distanceCounter';
+import { LoaderScreen } from './ui/loader';
+import { ProgressNav } from './ui/progressNav';
+import { initSectionReveal } from './ui/sectionReveal';
 
 function qs<T extends Element>(selector: string): T {
   const el = document.querySelector<T>(selector);
@@ -36,15 +41,17 @@ async function boot(): Promise<void> {
     params.get('motion') === 'reduced' || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const canvas = qs<HTMLCanvasElement>('#scene');
-  const loader = qs<HTMLElement>('#loader');
+  const loader = new LoaderScreen(qs<HTMLElement>('#loader'));
 
   if (!hasWebGL2()) {
     // Static, fully readable page without the 3D layer.
     canvas.remove();
-    loader.classList.add('is-done');
+    loader.done();
     document.documentElement.classList.add('no-webgl');
     return;
   }
+  document.documentElement.classList.add('js');
+  loader.setProgress(0.05, 'готовим сцену');
 
   const forcedTier = tierFromQuery(location.search);
   let quality = QUALITY[forcedTier ?? 'medium'];
@@ -54,10 +61,14 @@ async function boot(): Promise<void> {
     core.applyQuality(quality);
   }
 
-  const scroll = new ScrollController(qs<HTMLElement>('#journey'), !reducedMotion);
+  const main = qs<HTMLElement>('#journey');
+  const scroll = new ScrollController(main, !reducedMotion);
   const path = new CameraPath(CAMERA_KEYS, scroll.ranges);
   const env = new EnvTimeline(scroll.ranges);
   const director = new SceneDirector(core.scene, quality);
+  const distance = new DistanceCounter(qs<HTMLElement>('#distance'), scroll.ranges);
+  const nav = new ProgressNav(qs<HTMLElement>('#progress-nav'), scroll);
+  const accent = new AccentColor();
 
   const starfield = new Starfield(quality);
   director.add(starfield);
@@ -67,11 +78,14 @@ async function boot(): Promise<void> {
     path.resolve(ranges);
     env.resolve(ranges);
     director.resolve(ranges);
+    distance.resolve(ranges);
   });
 
   core.resize();
   starfield.setPixelRatio(core.size.dpr);
+  loader.setProgress(0.4, 'строим Солнечную систему');
   await director.init({ renderer: core.renderer, quality });
+  loader.setProgress(0.8, 'компилируем шейдеры');
 
   const sample = createCameraSample();
   const ctx: FrameContext = {
@@ -124,6 +138,10 @@ async function boot(): Promise<void> {
     director.update(ctx);
     core.renderer.render(core.scene, camera);
 
+    distance.update(p);
+    nav.update(chapter.id, p);
+    accent.update(state.accent);
+
     if (!forcedTier) governor.sample(dt);
   };
 
@@ -132,12 +150,15 @@ async function boot(): Promise<void> {
   });
 
   scroll.init();
+  initSectionReveal(
+    CHAPTERS.map((c) => qs<HTMLElement>(`section[data-chapter="${c.id}"]`)),
+    { reducedMotion, lite: quality.tier === 'low' },
+  );
   const hash = location.hash.slice(1) as ChapterId;
-  if (hash && document.querySelector(`section[data-chapter="${hash}"]`)) scroll.scrollToChapter(hash, true);
+  if (hash && CHAPTERS.some((c) => c.id === hash)) scroll.scrollToChapter(hash, true);
 
   gsap.ticker.add(frame);
-  loader.classList.add('is-done');
-  loader.setAttribute('aria-valuenow', '100');
+  loader.done();
 
   if (params.has('qa') || params.has('debug')) {
     Object.assign(window, {
