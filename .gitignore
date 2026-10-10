@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+.vite/
+coverage/
+
+# Raw texture downloads (large, re-downloadable). Processed maps live in public/textures.
+textures-src/

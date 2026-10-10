@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Полёт сквозь Вселенную: от Земли до края наблюдаемого космоса</title>
+    <meta
+      name="description"
+      content="Интерактивное 3D-путешествие: от Земли через Солнечную систему к чёрной дыре Стрелец A*, Млечному Пути и границам наблюдаемой Вселенной. Реальные цифры, научные факты, полёт на скролле."
+    />
+    <meta name="theme-color" content="#03040a" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:title" content="Полёт сквозь Вселенную" />
+    <meta
+      property="og:description"
+      content="От Земли до границ наблюдаемой Вселенной: 13 остановок, 46,5 млрд световых лет и один скролл."
+    />
+    <meta property="og:image" content="%VITE_SITE_URL%/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Полёт сквозь Вселенную" />
+    <meta
+      name="twitter:description"
+      content="От Земли до границ наблюдаемой Вселенной: 13 остановок и один скролл."
+    />
+    <meta name="twitter:image" content="%VITE_SITE_URL%/og-image.jpg" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Полёт сквозь Вселенную",
+        "inLanguage": "ru",
+        "description": "Интерактивное 3D-путешествие от Земли до границ наблюдаемой Вселенной.",
+        "about": [
+          { "@type": "Thing", "name": "Солнечная система" },
+          { "@type": "Thing", "name": "Стрелец A*" },
+          { "@type": "Thing", "name": "Млечный Путь" },
+          { "@type": "Thing", "name": "Наблюдаемая Вселенная" }
+        ]
+      }
+    </script>
+    <noscript>
+      <style>
+        .loader,
+        .scene,
+        .hud {
+          display: none !important;
+        }
+      </style>
+    </noscript>
+  </head>
+  <body>
+    <a class="skip-link" href="#journey">К содержанию</a>
+
+    <div class="loader" id="loader" role="progressbar" aria-label="Загрузка сцены" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div class="loader__inner">
+        <p class="loader__title">Полёт сквозь Вселенную</p>
+        <div class="loader__bar" aria-hidden="true"><span class="loader__fill" id="loader-fill"></span></div>
+        <p class="loader__status"><span id="loader-value">0</span>%&nbsp;<span id="loader-label">загружаем Землю</span></p>
+      </div>
+    </div>
+
+    <canvas class="scene" id="scene" aria-hidden="true"></canvas>
+
+    <div class="hud" aria-hidden="true">
+      <p class="hud__brand">Полёт сквозь Вселенную</p>
+      <p class="distance">
+        <span class="distance__label">Расстояние от Земли</span>
+        <span class="distance__value" id="distance">400 км</span>
+      </p>
+    </div>
+
+    <nav class="progress-nav" aria-label="Навигация по объектам">
+      <ol class="progress-nav__list" id="progress-nav">
+        <li><a href="#earth" data-chapter="earth"><span class="progress-nav__label">Земля</span></a></li>
+        <li><a href="#moon" data-chapter="moon"><span class="progress-nav__label">Луна</span></a></li>
+        <li><a href="#sun" data-chapter="sun"><span class="progress-nav__label">Солнце</span></a></li>
+        <li><a href="#inner" data-chapter="inner"><span class="progress-nav__label">Меркурий и Венера</span></a></li>
+        <li><a href="#mars" data-chapter="mars"><span class="progress-nav__label">Марс</span></a></li>
+        <li><a href="#asteroids" data-chapter="asteroids"><span class="progress-nav__label">Пояс астероидов</span></a></li>
+        <li><a href="#jupiter" data-chapter="jupiter"><span class="progress-nav__label">Юпитер</span></a></li>
+        <li><a href="#saturn" data-chapter="saturn"><span class="progress-nav__label">Сатурн</span></a></li>
+        <li><a href="#ice" data-chapter="ice"><span class="progress-nav__label">Уран и Нептун</span></a></li>
+        <li><a href="#heliopause" data-chapter="heliopause"><span class="progress-nav__label">Граница системы</span></a></li>
+        <li><a href="#blackhole" data-chapter="blackhole"><span class="progress-nav__label">Чёрная дыра</span></a></li>
+        <li><a href="#galaxy" data-chapter="galaxy"><span class="progress-nav__label">Млечный Путь</span></a></li>
+        <li><a href="#universe" data-chapter="universe"><span class="progress-nav__label">Вселенная</span></a></li>
+      </ol>
+    </nav>
+
+    <main id="journey" class="journey" tabindex="-1">
+      <section class="chapter chapter--hero" id="earth" data-chapter="earth" data-side="left" style="--len: 2" aria-labelledby="earth-title">
+        <div class="chapter__inner">
+          <div class="chapter__content">
+            <p class="chapter__eyebrow">01 · Старт с низкой орбиты</p>
+            <h1 class="chapter__title chapter__title--hero" id="earth-title">Полёт сквозь Вселенную</h1>
+            <p class="chapter__lead">
+              От голубой планеты до границ наблюдаемого космоса: 13 остановок и 46,5&nbsp;миллиарда световых лет.
+              С высоты МКС видна тонкая линия атмосферы, и 99&nbsp;% её массы умещаются в нижних 30&nbsp;километрах.
+            </p>
+            <dl class="stats">
+              <div class="stats__item"><dt>Диаметр Земли</dt><dd>12 742 км</dd></div>
+              <div class="stats__item"><dt>Масса</dt><dd>5,97 × 10<sup>24</sup> кг</dd></div>
+              <div class="stats__item"><dt>До Солнца</dt><dd>149,6 млн км</dd></div>
+            </dl>
+          </div>
+          <p class="scroll-hint" aria-hidden="true"><span class="scroll-hint__line"></span>Листайте</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="moon" data-chapter="moon" data-side="right" style="--len: 2" aria-labelledby="moon-title">
+        <div class="chapter__inner">
+          <div class="chapter__content">
+            <p class="chapter__eyebrow">02 · Спутник</p>
+            <h2 class="chapter__title" id="moon-title">Луна</h2>
+            <p class="chapter__lead">
+              Свет от Луны идёт до нас 1,3 секунды. Её притяжение поднимает в океанах два приливных горба, а приливное трение
+              тормозит вращение Земли и отодвигает Луну примерно на 3,8&nbsp;см в год.
+            </p>
+            <dl class="stats">
+              <div class="stats__item"><dt>Диаметр</dt><dd>3 474 км</dd></div>
+              <div class="stats__item"><dt>Масса</dt><dd>7,35 × 10<sup>22</sup> кг</dd></div>
+              <div class="stats__item"><dt>От Земли</dt><dd>384 400 км</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sun" data-chapter="sun" data-side="left" style="--len: 2.5" aria-labelledby="sun-title">
+        <div class="chapter__inner">
+          <div class="chapter__content">
+            <p class="chapter__eyebrow">03 · Звезда</p>
+            <h2 class="chapter__title" id="sun-title">Солнце</h2>
+            <p class="chapter__lead">
+              В Солнце сосредоточено 99,86&nbsp;% массы всей системы. В ядре при 15&nbsp;млн&nbsp;°C каждую секунду около
+              600&nbsp;млн тонн водорода превращаются в гелий. Свет с поверхности летит до Земли 8&nbsp;минут 20&nbsp;секунд.
+            </p>
+            <dl class="stats">
+              <div class="stats__item"><dt>Диаметр</dt><dd>1,39 млн км</dd></div>
+              <div class="stats__item"><dt>Масса</dt><dd>1,99 × 10<sup>30</sup> кг</dd></div>
+              <div class="stats__item"><dt>Поверхность</dt><dd>≈ 5 500 °C</dd></div>
+              <div class="stats__item"><dt>От Земли</dt><dd>149,6 млн км</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="inner" data-chapter="inner" data-side="right" style="--len: 2.5" aria-labelledby="inner-title">
+        <div class="chapter__inner">
+          <div class="chapter__content">
+            <p class="chapter__eyebrow">04 · Внутренние планеты</p>
+            <h2 class="chapter__title" id="inner-title">Меркурий и Венера</h2>
+            <p class="chapter__lead">
+              На Меркурии днём +430&nbsp;°C, а ночью −180&nbsp;°C. Венера почти двойник Земли по размеру, но под облаками
+              серной кислоты там 464&nbsp;°C и давление в 92 раза выше земного. Сутки на Венере длиннее её года.
+            </p>
+            <dl class="stats">
+              <div class="stats__item"><dt>Меркурий, диаметр</dt><dd>4 879 км</dd></div>
+              <div class="stats__item"><dt>Венера, диаметр</dt><dd>12 104 км</dd></div>
+              <div class="stats__item"><dt>Масса Венеры</dt><dd>4,87 × 10<sup>24</sup> кг</dd></div>
+              <div class="stats__item"><dt>До Венеры, минимум</dt><dd>38 млн км</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="mars" data-chapter="mars" data-side="left" style="--len: 2.5" aria-labelledby="mars-title">
+        <div class="chapter__inner">
+          <div class="chapter__content">
+            <p class="chapter__eyebrow">05 · Красная планета</p>
+            <h2 class="chapter__title" id="mars-title">Марс</h2>
+            <p class="chapter__lead">
+              Ржавый цвет Марсу дают оксиды железа в пыли. Пылевые бури порой накрывают всю планету, а вулкан Олимп
+              поднимается почти на 22&nbsp;км, в два с половиной раза выше Эвереста.
+            </p>
+            <dl class="stats">
+              <div class="stats__item"><dt>Диаметр</dt><dd>6 779 км</dd></div>
+              <div class="stats__item"><dt>Масса</dt><dd>6,42 × 10<sup>23</sup> кг</dd></div>
+              <div class="stats__item"><dt>От Земли, минимум</dt><dd>54,6 млн км</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="asteroids" data-chapter="asteroids" data-side="right" style="--len: 2.5" aria-labelledby="asteroids-title">
+        <div class="chapter__inner">
+          <div class="chapter__content">
+            <p class="chapter__eyebrow">06 · Между Марсом и Юпитером</p>
+            <h2 class="chapter__title" id="asteroids-title">Пояс астероидов</h2>
+            <p class="chapter__lead">
+              Миллионы каменных тел, но вместе они весят лишь около 3&nbsp;% массы Луны, и почти 40&nbsp;% из этого приходится
+              на карликовую планету Цереру. Хвост кометы всегда смотрит от Солнца: его сдувают солнечный ветер и давление света.
+            </p>
+            <dl class="stats">
+              <div class="stats__item"><dt>От Солнца</dt><dd>2,2–3,2 а. е.</dd></div>
+              <div class="stats__item"><dt>Церера, диаметр</dt><dd>940 км</dd></div>
+              <div class="stats__item"><dt>Между астероидами</dt><dd>≈ 1 млн км</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="jupiter" data-chapter="jupiter" data-side="left" style="--len: 2.5" aria-labelledby="jupiter-title">
+        <div class="chapter__inner">
+          <div class="chapter__content">
+            <p class="chapter__eyebrow">07 · Газовый гигант</p>
+            <h2 class="chapter__title" id="jupiter-title">Юпитер</h2>
+            <p class="chapter__lead">
+              Юпитер в 2,5 раза массивнее всех остальных планет вместе взятых. Большое красное пятно — шторм шире Земли,
+              за которым следят почти два века. Сутки короче 10 часов, и облака вытянуты в полосы. Его спутник Ганимед
+              больше Меркурия.
+            </p>
+            <dl class="stats">
+              <div class="stats__item"><dt>Диаметр</dt><dd>139 820 км</dd></div>
+              <div class="stats__item"><dt>Масса</dt><dd>1,90 × 10<sup>27</sup> кг</dd></div>
+              <div class="stats__item"><dt>От Земли, минимум</dt><dd>588 млн км</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="saturn" data-chapter="saturn" data-side="right" style="--len: 3" aria-labelledby="saturn-title">
+        <div class="chapter__inner">
+          <div class="chapter__content">
+            <p class="chapter__eyebrow">08 · Властелин колец</p>
+            <h2 class="chapter__title" id="saturn-title">Сатурн</h2>
+            <p class="chapter__lead">
+              Кольца тянутся на сотни тысяч километров, но толщина основных колец около 10&nbsp;метров. Они состоят изо льда
+              и камня, от пылинок до глыб с дом. Средняя плотность Сатурна меньше плотности воды.
+            </p>
+            <dl class="stats">
+              <div class="stats__item"><dt>Диаметр</dt><dd>116 460 км</dd></div>
+              <div class="stats__item"><dt>Масса</dt><dd>5,68 × 10<sup>26</sup> кг</dd></div>
+              <div class="stats__item"><dt>От Земли, минимум</dt><dd>1,2 млрд км</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ice" data-chapter="ice" data-side="left" style="--len: 2.5" aria-labelledby="ice-title">
+        <div class="chapter__inner">
+          <div class="chapter__content">
+            <p class="chapter__eyebrow">09 · Ледяные гиганты</p>
+            <h2 class="chapter__title" id="ice-title">Уран и Нептун</h2>
+            <p class="chapter__lead">
+              Уран вращается «лёжа на боку»: ось наклонена на 98°, и каждый полюс по 42 года не видит Солнца. На Нептуне дуют
+              самые быстрые ветры в Солнечной системе, до 2&nbsp;000&nbsp;км/ч, а солнечный свет идёт туда больше четырёх часов.
+            </p>
+            <dl class="stats">
+              <div class="stats__item"><dt>Уран, диаметр</dt><dd>50 724 км</dd></div>
+              <div class="stats__item"><dt>Нептун, диаметр</dt><dd>49 244 км</dd></div>
+              <div class="stats__item"><dt>До Урана, минимум</dt><dd>2,6 млрд км</dd></div>
+              <div class="stats__item"><dt>До Нептуна, минимум</dt><dd>4,3 млрд км</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="heliopause" data-chapter="heliopause" data-side="right" style="--len: 2.5" aria-labelledby="heliopause-title">
+        <div class="chapter__inner">
+          <div class="chapter__content">
+            <p class="chapter__eyebrow">10 · Граница гелиосферы</p>
+            <h2 class="chapter__title" id="heliopause-title">Солнце — просто звезда</h2>
+            <p class="chapter__lead">
+              «Вояджер-1», запущенный в 1977 году, в 2012-м пересёк гелиопаузу и вышел в межзвёздное пространство. В ноябре
+              2026 года он удалится от Земли на одни световые сутки. Отсюда Солнце лишь одна из тысяч ярких точек.
+            </p>
+            <dl class="stats">
+              <div class="stats__item"><dt>«Вояджер-1»</dt><dd>≈ 25,9 млрд км</dd></div>
+              <div class="stats__item"><dt>Его скорость</dt><dd>≈ 17 км/с</dd></div>
+              <div class="stats__item"><dt>До Проксимы Центавра</dt><dd>4,24 св. года</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="blackhole" data-chapter="blackhole" data-side="left" style="--len: 3" aria-labelledby="blackhole-title">
+        <div class="chapter__inner">
+          <div class="chapter__content">
+            <p class="chapter__eyebrow">11 · Центр Галактики</p>
+            <h2 class="chapter__title" id="blackhole-title">Стрелец A*</h2>
+            <p class="chapter__lead">
+              Сверхмассивная чёрная дыра в сердце Млечного Пути. Её гравитация изгибает свет и сворачивает фон в кольцо, а у
+              горизонта событий время для далёкого наблюдателя почти останавливается. Первое изображение её тени получено в 2022 году.
+            </p>
+            <dl class="stats">
+              <div class="stats__item"><dt>Масса</dt><dd>4,3 млн масс Солнца</dd></div>
+              <div class="stats__item"><dt>Радиус горизонта</dt><dd>≈ 12,7 млн км</dd></div>
+              <div class="stats__item"><dt>От Земли</dt><dd>26 700 св. лет</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="galaxy" data-chapter="galaxy" data-side="right" style="--len: 3.5" aria-labelledby="galaxy-title">
+        <div class="chapter__inner">
+          <div class="chapter__content">
+            <p class="chapter__eyebrow">12 · Наш дом</p>
+            <h2 class="chapter__title" id="galaxy-title">Млечный Путь</h2>
+            <p class="chapter__lead">
+              От 100 до 400 миллиардов звёзд в диске поперечником около 100&nbsp;000 световых лет. Солнце облетает центр
+              примерно за 230 млн лет. Дальше Местная группа с Андромедой и скопление Девы, где больше тысячи галактик.
+            </p>
+            <dl class="stats">
+              <div class="stats__item"><dt>Диаметр</dt><dd>≈ 100 000 св. лет</dd></div>
+              <div class="stats__item"><dt>Звёзд</dt><dd>100–400 млрд</dd></div>
+              <div class="stats__item"><dt>До скопления Девы</dt><dd>≈ 54 млн св. лет</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter chapter--finale" id="universe" data-chapter="universe" data-side="left" style="--len: 2.5" aria-labelledby="universe-title">
+        <div class="chapter__inner">
+          <div class="chapter__content">
+            <p class="chapter__eyebrow">13 · Финал</p>
+            <h2 class="chapter__title" id="universe-title">Наблюдаемая Вселенная</h2>
+            <p class="chapter__lead">
+              Галактики собираются в нити и стены космической паутины, между которыми лежат пустоты в сотни миллионов
+              световых лет. Возраст Вселенной 13,8&nbsp;млрд лет, но радиус видимой её части 46,5&nbsp;млрд световых лет:
+              пространство всё это время расширялось.
+            </p>
+            <dl class="stats">
+              <div class="stats__item"><dt>Возраст</dt><dd>13,8 млрд лет</dd></div>
+              <div class="stats__item"><dt>Радиус</dt><dd>46,5 млрд св. лет</dd></div>
+              <div class="stats__item"><dt>Галактик</dt><dd>сотни миллиардов</dd></div>
+            </dl>
+            <p class="cta">
+              <span class="cta__text">Посмотрите сегодня в ночное небо. Дальше можно исследовать самостоятельно:</span>
+              <a class="cta__link" href="https://science.nasa.gov/" rel="noopener" target="_blank">NASA Science</a>
+              <a class="cta__link" href="https://www.esa.int/Science_Exploration/Space_Science" rel="noopener" target="_blank">ESA</a>
+              <a class="cta__link cta__link--restart" href="#earth" data-chapter="earth">К Земле ↑</a>
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        Текстуры: NASA Visible Earth и NASA SVS CGI Moon Kit (общественное достояние), Solar System Scope (CC BY 4.0).
+        Масштабы художественные, цифры и расстояния реальные.
+      </p>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
