@@ -11,6 +11,8 @@ import { FpsGovernor, QUALITY, detectTier, readDeviceInfo, tierFromQuery, type T
 import { AssetLibrary } from './core/assets';
 import type { FrameContext } from './core/frame';
 import { createRenderCore } from './core/renderer';
+import { AsteroidBelt } from './scenes/asteroids';
+import { Comets } from './scenes/comet';
 import { Earth } from './scenes/earth';
 import { Mars } from './scenes/mars';
 import { Mercury } from './scenes/mercury';
@@ -87,6 +89,8 @@ async function boot(): Promise<void> {
   director.add(new Mercury(quality));
   director.add(new Venus(quality));
   director.add(new Mars(quality));
+  director.add(new AsteroidBelt(quality));
+  director.add(new Comets(quality));
   for (const id of ['sun', 'earth', 'moon', 'mercury', 'venus', 'mars']) placeholders.remove(id);
   director.add(placeholders);
 

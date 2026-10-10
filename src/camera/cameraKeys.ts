@@ -99,7 +99,7 @@ export const CAMERA_KEYS: readonly CameraKey[] = [
 
   // 6. Through the asteroid belt towards a comet.
   key('asteroids', 0.04, polar(735, -0.26, 10), polar(800, -0.2, 4), { stop: false, fov: 50, near: 0.1 }),
-  key('asteroids', 0.24, polar(800, -0.2, 5), polar(885, -0.1, 16)),
+  key('asteroids', 0.24, polar(800, -0.2, 5), polar(860, 0.03, 40)),
   key('asteroids', 0.62, polar(905, -0.12, 0), JUPITER.position, { stop: false, fov: 45 }),
 
   // 7. Jupiter and its moons.
