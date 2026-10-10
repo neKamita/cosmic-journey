@@ -37,6 +37,8 @@ export interface PlanetBodyConfig {
   readonly initialSpin?: number;
   /** Extra shader chunk replacements merged with the haze patch. */
   readonly shaderPatch?: Omit<ShaderPatch, 'key'>;
+  /** Hide the planet beyond this camera distance (it would be a sub-pixel dot in reality). */
+  readonly maxViewDistance?: number;
 }
 
 /**
@@ -111,6 +113,11 @@ export class PlanetBody implements SceneModule {
   }
 
   update(ctx: FrameContext): void {
+    const max = this.config.maxViewDistance;
+    if (max !== undefined && ctx.camera.position.distanceTo(this.config.layout.position) > max) {
+      this.root.visible = false;
+      return;
+    }
     this.spin.rotation.y += ctx.dt * ctx.motion * this.config.layout.spin;
     this.sun.update(ctx.camera);
     this.haze?.uHazeSunDir.value.copy(this.sun.view);

@@ -16,7 +16,10 @@ import { Comets } from './scenes/comet';
 import { Earth } from './scenes/earth';
 import { Jupiter } from './scenes/jupiter';
 import { Mars } from './scenes/mars';
+import { Heliosphere } from './scenes/heliosphere';
+import { Neptune } from './scenes/neptune';
 import { Saturn } from './scenes/saturn';
+import { Uranus } from './scenes/uranus';
 import { Mercury } from './scenes/mercury';
 import { Moon } from './scenes/moon';
 import { Venus } from './scenes/venus';
@@ -95,7 +98,12 @@ async function boot(): Promise<void> {
   director.add(new Comets(quality));
   director.add(new Jupiter(quality));
   director.add(new Saturn(quality));
-  for (const id of ['sun', 'earth', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn']) placeholders.remove(id);
+  director.add(new Uranus(quality));
+  director.add(new Neptune(quality));
+  director.add(new Heliosphere());
+  for (const id of ['sun', 'earth', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune']) {
+    placeholders.remove(id);
+  }
   director.add(placeholders);
 
   scroll.onMeasure((ranges) => {
