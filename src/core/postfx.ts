@@ -11,16 +11,16 @@ import {
   ToneMappingEffect,
   ToneMappingMode,
   VignetteEffect,
-  type Pass,
 } from 'postprocessing';
-import { HalfFloatType, Vector2, type Camera, type Mesh, type Scene, type WebGLRenderer } from 'three';
+import { HalfFloatType, Vector2, type Mesh, type PerspectiveCamera, type Scene, type WebGLRenderer } from 'three';
 import type { EnvState } from '../camera/envTracks';
 import type { QualitySettings } from '../config/quality';
 import { GradeEffect } from './effects/GradeEffect';
+import { LensEffect } from './effects/LensEffect';
 
 /**
  * Post-processing chain (pmndrs/postprocessing):
- *   RenderPass → [lens] → [god rays] → [bloom, grade, ACES tone mapping, vignette, grain] → [CA]
+ *   RenderPass → [black hole lens] → [god rays] → [bloom, grade, ACES, vignette, grain] → [CA]
  * Effects that sample neighbouring texels (lens, god rays, chromatic aberration) live in their own
  * passes, as the library requires. The last pass must stay enabled because it renders to screen.
  */
@@ -33,13 +33,15 @@ export class PostFX {
   private readonly aberration: ChromaticAberrationEffect | null = null;
   private readonly godRays: GodRaysEffect | null = null;
   private readonly godRaysPass: EffectPass | null = null;
+  private readonly lens: LensEffect | null = null;
+  private readonly lensPass: EffectPass | null = null;
   private quality: QualitySettings;
   private grainEnabled: boolean;
 
   constructor(
     renderer: WebGLRenderer,
     scene: Scene,
-    private readonly camera: Camera,
+    camera: PerspectiveCamera,
     quality: QualitySettings,
     sunLightSource: Mesh,
     reducedMotion: boolean,
@@ -51,6 +53,13 @@ export class PostFX {
       multisampling: quality.multisampling,
     });
     this.composer.addPass(new RenderPass(scene, camera));
+
+    if (quality.lens) {
+      this.lens = new LensEffect(camera);
+      this.lensPass = new EffectPass(camera, this.lens);
+      this.lensPass.enabled = false;
+      this.composer.addPass(this.lensPass);
+    }
 
     if (quality.godRays) {
       this.godRays = new GodRaysEffect(camera, sunLightSource, {
@@ -101,13 +110,9 @@ export class PostFX {
     }
   }
 
-  /** Inserts a pass right after the scene render (used by the black hole lens). */
-  insertAfterRender(pass: Pass): void {
-    this.composer.addPass(pass, 1);
-  }
-
-  get mainCamera(): Camera {
-    return this.camera;
+  /** Whether the ray-traced black hole lens is part of this chain. */
+  get hasLens(): boolean {
+    return this.lens !== null;
   }
 
   setSize(width: number, height: number): void {
@@ -120,7 +125,11 @@ export class PostFX {
     this.grainEnabled = this.grainEnabled && quality.grain;
   }
 
-  update(env: EnvState): void {
+  update(env: EnvState, time: number): void {
+    if (this.lens && this.lensPass) {
+      this.lens.setState(time, env.lens);
+      this.lensPass.enabled = env.lens > 0.01;
+    }
     this.bloom.intensity = env.bloom;
     this.grade.setGrade(env.tint, env.saturation);
     this.vignette.darkness = env.vignette;

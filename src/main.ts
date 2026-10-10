@@ -16,6 +16,7 @@ import { Comets } from './scenes/comet';
 import { Earth } from './scenes/earth';
 import { Jupiter } from './scenes/jupiter';
 import { Mars } from './scenes/mars';
+import { BlackHole } from './scenes/blackHole';
 import { Heliosphere } from './scenes/heliosphere';
 import { Neptune } from './scenes/neptune';
 import { Saturn } from './scenes/saturn';
@@ -101,6 +102,10 @@ async function boot(): Promise<void> {
   director.add(new Uranus(quality));
   director.add(new Neptune(quality));
   director.add(new Heliosphere());
+  const blackHole = new BlackHole();
+  director.add(blackHole);
+  placeholders.remove('blackhole');
+  placeholders.remove('blackhole-disk');
   for (const id of ['sun', 'earth', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune']) {
     placeholders.remove(id);
   }
@@ -129,6 +134,7 @@ async function boot(): Promise<void> {
     return fx;
   };
   let postfx = createPostFX(quality);
+  blackHole.setLensActive(postfx?.hasLens ?? false);
 
   const sample = createCameraSample();
   const ctx: FrameContext = {
@@ -154,6 +160,7 @@ async function boot(): Promise<void> {
     if (!quality.postfx && postfx) {
       postfx.dispose();
       postfx = null;
+      blackHole.setLensActive(false);
     } else if (postfx) {
       postfx.setQuality(quality);
       postfx.setSize(core.size.width, core.size.height);
@@ -189,7 +196,7 @@ async function boot(): Promise<void> {
 
     director.update(ctx);
     if (postfx) {
-      postfx.update(state);
+      postfx.update(state, ctx.time);
       postfx.render(dt);
     } else {
       core.renderer.render(core.scene, camera);
