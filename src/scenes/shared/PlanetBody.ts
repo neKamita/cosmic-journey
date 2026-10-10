@@ -14,6 +14,7 @@ import {
   hazeUniforms,
   patchMaterial,
   type HazeUniforms,
+  type ShaderPatch,
 } from './planet';
 
 export interface PlanetBodyConfig {
@@ -34,6 +35,8 @@ export interface PlanetBodyConfig {
   readonly castShadow?: boolean;
   readonly receiveShadow?: boolean;
   readonly initialSpin?: number;
+  /** Extra shader chunk replacements merged with the haze patch. */
+  readonly shaderPatch?: Omit<ShaderPatch, 'key'>;
 }
 
 /**
@@ -68,7 +71,15 @@ export class PlanetBody implements SceneModule {
     this.material = new MeshStandardMaterial({ roughness: config.roughness ?? 0.95, metalness: 0 });
     if (config.haze) {
       this.haze = hazeUniforms(config.haze.day, config.haze.twilight, config.haze.strength, config.haze.power);
-      patchMaterial(this.material, { key: `${config.id}-haze`, uniforms: this.haze, fragment: HAZE_FRAGMENT });
+    }
+    const extra = config.shaderPatch;
+    if (this.haze || extra) {
+      patchMaterial(this.material, {
+        key: `${config.id}-surface`,
+        uniforms: { ...this.haze, ...extra?.uniforms },
+        vertex: extra?.vertex ?? [],
+        fragment: [...(this.haze ? HAZE_FRAGMENT : []), ...(extra?.fragment ?? [])],
+      });
     }
     this.surface = createSphereLOD(this.material, layout.radius, quality.sphereSegments, {
       castShadow: config.castShadow ?? false,

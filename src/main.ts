@@ -14,7 +14,9 @@ import { createRenderCore } from './core/renderer';
 import { AsteroidBelt } from './scenes/asteroids';
 import { Comets } from './scenes/comet';
 import { Earth } from './scenes/earth';
+import { Jupiter } from './scenes/jupiter';
 import { Mars } from './scenes/mars';
+import { Saturn } from './scenes/saturn';
 import { Mercury } from './scenes/mercury';
 import { Moon } from './scenes/moon';
 import { Venus } from './scenes/venus';
@@ -91,7 +93,9 @@ async function boot(): Promise<void> {
   director.add(new Mars(quality));
   director.add(new AsteroidBelt(quality));
   director.add(new Comets(quality));
-  for (const id of ['sun', 'earth', 'moon', 'mercury', 'venus', 'mars']) placeholders.remove(id);
+  director.add(new Jupiter(quality));
+  director.add(new Saturn(quality));
+  for (const id of ['sun', 'earth', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn']) placeholders.remove(id);
   director.add(placeholders);
 
   scroll.onMeasure((ranges) => {

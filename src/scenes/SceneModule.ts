@@ -1,5 +1,5 @@
 import type { Object3D, Vector3, WebGLRenderer } from 'three';
-import type { Anchor } from '../camera/anchors';
+import type { Anchor, ChapterRanges } from '../camera/anchors';
 import type { QualitySettings } from '../config/quality';
 import type { AssetLibrary } from '../core/assets';
 import type { FrameContext } from '../core/frame';
@@ -27,6 +27,8 @@ export interface SceneModule {
   readonly active?: readonly [Anchor, Anchor];
   /** One-time GPU work (baking, shader warm-up helpers). */
   init?(ctx: InitContext): void | Promise<void>;
+  /** Called whenever chapter ranges are (re)measured, for modules that key behaviour to anchors. */
+  resolve?(ranges: ChapterRanges): void;
   update(ctx: FrameContext): void;
   setQuality?(quality: QualitySettings): void;
   /** For screen-space sized content (points, sprites). */

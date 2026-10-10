@@ -50,6 +50,7 @@ export class SceneDirector {
     for (const entry of this.entries) {
       const active = entry.module.active;
       entry.range = active ? [resolveAnchor(active[0], ranges), resolveAnchor(active[1], ranges)] : null;
+      entry.module.resolve?.(ranges);
     }
   }
 
