@@ -28,6 +28,11 @@ export interface RenderCore {
    * screens, upwards on portrait screens where text sits at the bottom.
    */
   applyFraming(frame: number): void;
+  /**
+   * Sets the camera FOV. Keys are authored for landscape (vertical FOV); on portrait screens the
+   * vertical FOV is widened so the horizontal view does not collapse and objects still fit.
+   */
+  setFov(fov: number): void;
 }
 
 export function createRenderCore(canvas: HTMLCanvasElement, quality: QualitySettings): RenderCore {
@@ -76,6 +81,16 @@ export function createRenderCore(canvas: HTMLCanvasElement, quality: QualitySett
       renderer.shadowMap.enabled = q.shadows;
       renderer.shadowMap.needsUpdate = true;
       core.resize();
+    },
+    setFov(fov) {
+      const aspect = size.width / size.height;
+      if (aspect >= 1) {
+        camera.fov = fov;
+        return;
+      }
+      // Keep ~80% of the authored angle horizontally on portrait screens.
+      const horizontal = ((fov * 0.8) / 2) * (Math.PI / 180);
+      camera.fov = Math.min(80, (2 * Math.atan(Math.tan(horizontal) / aspect) * 180) / Math.PI);
     },
     applyFraming(frame) {
       if (frame === currentFrame) return;

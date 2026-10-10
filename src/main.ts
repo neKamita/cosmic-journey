@@ -38,7 +38,11 @@ import { AccentColor } from './ui/accent';
 import { DistanceCounter } from './ui/distanceCounter';
 import { LoaderScreen } from './ui/loader';
 import { ProgressNav } from './ui/progressNav';
+import type { DebugPanel } from './ui/debug';
 import { initSectionReveal } from './ui/sectionReveal';
+
+const initDebug = async (...args: Parameters<typeof import('./ui/debug').initDebug>) =>
+  (await import('./ui/debug')).initDebug(...args);
 
 function qs<T extends Element>(selector: string): T {
   const el = document.querySelector<T>(selector);
@@ -132,6 +136,11 @@ async function boot(): Promise<void> {
   await director.init({ renderer: core.renderer, quality, assets });
   loader.setProgress(0.85, 'компилируем шейдеры');
 
+  // Compile every module's shaders up front so entering a chapter never stalls on a shader build.
+  director.showAll();
+  await core.renderer.compileAsync(core.scene, core.camera);
+  loader.setProgress(0.95, 'почти готово');
+
   const createPostFX = (q: typeof quality): PostFX | null => {
     if (!q.postfx) return null;
     const fx = new PostFX(core.renderer, core.scene, core.camera, q, sun.lightSource, reducedMotion);
@@ -140,6 +149,7 @@ async function boot(): Promise<void> {
   };
   let postfx = createPostFX(quality);
   blackHole.setLensActive(postfx?.hasLens ?? false);
+  core.renderer.info.autoReset = false;
 
   const sample = createCameraSample();
   const ctx: FrameContext = {
@@ -156,23 +166,28 @@ async function boot(): Promise<void> {
     viewportHeight: core.size.height,
   };
 
-  const applyQuality = (tier: Tier): void => {
+  /**
+   * Switches the quality tier at runtime. Downgrades from the FPS governor adjust the existing
+   * post-processing chain; `rebuild` (debug panel) recreates it so effects can come back too.
+   */
+  const applyQuality = (tier: Tier, rebuild = false): void => {
     quality = QUALITY[tier];
     ctx.quality = quality;
     core.applyQuality(quality);
     director.setQuality(quality);
     director.setPixelRatio(core.size.dpr);
     assets.setQuality(quality);
-    if (!quality.postfx && postfx) {
-      postfx.dispose();
-      postfx = null;
-      blackHole.setLensActive(false);
+    if (rebuild || !quality.postfx) {
+      postfx?.dispose();
+      postfx = createPostFX(quality);
     } else if (postfx) {
       postfx.setQuality(quality);
       postfx.setSize(core.size.width, core.size.height);
     }
+    blackHole.setLensActive(postfx?.hasLens ?? false);
   };
-  const governor = new FpsGovernor(quality.tier, applyQuality);
+  const governor = new FpsGovernor(quality.tier, (tier) => applyQuality(tier));
+  let debug: DebugPanel | null = null;
 
   const frame = (_time: number, deltaMs: number): void => {
     const dt = Math.min(deltaMs / 1000, 0.1);
@@ -190,7 +205,7 @@ async function boot(): Promise<void> {
     const camera = core.camera;
     camera.position.copy(sample.position);
     camera.lookAt(sample.target);
-    camera.fov = sample.fov;
+    core.setFov(sample.fov);
     camera.near = sample.near;
     camera.far = sample.far;
     core.applyFraming(sample.frame);
@@ -202,6 +217,7 @@ async function boot(): Promise<void> {
     core.renderer.toneMappingExposure = state.exposure;
 
     director.update(ctx);
+    core.renderer.info.reset();
     if (postfx) {
       postfx.update(state, ctx.time);
       postfx.render(dt);
@@ -213,7 +229,8 @@ async function boot(): Promise<void> {
     nav.update(chapter.id, p);
     accent.update(state.accent);
 
-    if (!forcedTier) governor.sample(dt);
+    if (!forcedTier && !debug) governor.sample(dt);
+    debug?.update();
   };
 
   window.addEventListener('resize', () => {
@@ -233,20 +250,33 @@ async function boot(): Promise<void> {
   gsap.ticker.add(frame);
   loader.done();
 
+  const renderState = () => ({
+    progress: Number(ctx.progress.toFixed(4)),
+    chapter: ctx.chapter,
+    local: Number(ctx.chapterLocal.toFixed(3)),
+    tier: quality.tier,
+    calls: core.renderer.info.render.calls,
+    triangles: core.renderer.info.render.triangles,
+    programs: core.renderer.info.programs?.length ?? 0,
+  });
+
+  if (params.has('debug')) {
+    debug = await initDebug({
+      renderer: core.renderer,
+      env: env.state,
+      getTier: () => quality.tier,
+      setTier: (tier) => applyQuality(tier, true),
+      getState: renderState,
+    });
+  }
+
   if (params.has('qa') || params.has('debug')) {
+    // Automation hook for visual QA scripts.
     Object.assign(window, {
       __journey: {
         scrollToProgress: (p: number, immediate = false) => scroll.scrollToProgress(p, immediate),
         scrollToChapter: (id: ChapterId, immediate = false) => scroll.scrollToChapter(id, immediate),
-        debugState: () => ({
-          progress: Number(ctx.progress.toFixed(4)),
-          chapter: ctx.chapter,
-          local: Number(ctx.chapterLocal.toFixed(3)),
-          tier: quality.tier,
-          calls: core.renderer.info.render.calls,
-          triangles: core.renderer.info.render.triangles,
-          programs: core.renderer.info.programs?.length ?? 0,
-        }),
+        debugState: renderState,
       },
     });
   }

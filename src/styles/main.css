@@ -22,6 +22,7 @@
 html {
   background: var(--bg);
   -webkit-text-size-adjust: 100%;
+  overflow-x: clip;
 }
 
 body {
@@ -509,9 +510,10 @@ html.js .chapter__content > * {
     align-items: flex-end;
   }
 
+  /* Full-width bottom scrim, sized to the column padding so it never widens the page. */
   .chapter__content::before {
-    inset: -12% -18%;
-    background: radial-gradient(closest-side, rgb(3 4 10 / 0.72), rgb(3 4 10 / 0.45) 60%, transparent);
+    inset: -40% calc(-1 * (var(--gutter) + 1.75rem)) -30% calc(-1 * var(--gutter));
+    background: linear-gradient(to bottom, transparent, rgb(3 4 10 / 0.78) 32%, rgb(3 4 10 / 0.88));
   }
 
   .stats {

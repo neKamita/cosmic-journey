@@ -37,6 +37,7 @@ export class PostFX {
   private readonly lensPass: EffectPass | null = null;
   private quality: QualitySettings;
   private grainEnabled: boolean;
+  private readonly reducedMotion: boolean;
 
   constructor(
     renderer: WebGLRenderer,
@@ -47,6 +48,7 @@ export class PostFX {
     reducedMotion: boolean,
   ) {
     this.quality = quality;
+    this.reducedMotion = reducedMotion;
     this.grainEnabled = quality.grain && !reducedMotion;
     this.composer = new EffectComposer(renderer, {
       frameBufferType: HalfFloatType,
@@ -135,7 +137,7 @@ export class PostFX {
     this.vignette.darkness = env.vignette;
     this.noise.blendMode.opacity.value = this.grainEnabled ? env.grain : 0;
     if (this.aberration) {
-      const a = this.quality.aberration ? env.aberration : 0;
+      const a = this.quality.aberration && !this.reducedMotion ? env.aberration : 0;
       this.aberration.offset.set(a, a);
     }
     if (this.godRays && this.godRaysPass) {
