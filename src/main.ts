@@ -8,6 +8,7 @@ import { CAMERA_KEYS } from './camera/cameraKeys';
 import { CameraPath, createCameraSample } from './camera/cameraPath';
 import { EnvTimeline } from './camera/envTracks';
 import { FpsGovernor, QUALITY, detectTier, readDeviceInfo, tierFromQuery, type Tier } from './config/quality';
+import { AssetLibrary } from './core/assets';
 import type { FrameContext } from './core/frame';
 import { createRenderCore } from './core/renderer';
 import { Placeholders } from './scenes/placeholders';
@@ -83,9 +84,12 @@ async function boot(): Promise<void> {
 
   core.resize();
   starfield.setPixelRatio(core.size.dpr);
-  loader.setProgress(0.4, 'строим Солнечную систему');
-  await director.init({ renderer: core.renderer, quality });
-  loader.setProgress(0.8, 'компилируем шейдеры');
+
+  const assets = new AssetLibrary(core.renderer, quality);
+  await assets.preloadCritical((f) => loader.setProgress(0.08 + f * 0.62, 'загружаем Землю и Луну'));
+  loader.setProgress(0.72, 'строим Солнечную систему');
+  await director.init({ renderer: core.renderer, quality, assets });
+  loader.setProgress(0.85, 'компилируем шейдеры');
 
   const sample = createCameraSample();
   const ctx: FrameContext = {
@@ -106,6 +110,7 @@ async function boot(): Promise<void> {
     ctx.quality = quality;
     core.applyQuality(quality);
     director.setQuality(quality);
+    assets.setQuality(quality);
     starfield.setPixelRatio(core.size.dpr);
   };
   const governor = new FpsGovernor(quality.tier, applyQuality);

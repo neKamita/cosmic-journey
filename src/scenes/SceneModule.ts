@@ -1,11 +1,13 @@
 import type { Object3D, Vector3, WebGLRenderer } from 'three';
 import type { Anchor } from '../camera/anchors';
 import type { QualitySettings } from '../config/quality';
+import type { AssetLibrary } from '../core/assets';
 import type { FrameContext } from '../core/frame';
 
 export interface InitContext {
   readonly renderer: WebGLRenderer;
   readonly quality: QualitySettings;
+  readonly assets: AssetLibrary;
 }
 
 /** Region the sun's shadow camera should cover while this module is in focus. */

@@ -1,0 +1,30 @@
+{
+  "earth_clouds": {
+    "4k": "textures/4k/earth_clouds.jpg",
+    "2k": "textures/2k/earth_clouds.jpg"
+  },
+  "earth_day": {
+    "4k": "textures/4k/earth_day.jpg",
+    "2k": "textures/2k/earth_day.jpg"
+  },
+  "earth_night": {
+    "4k": "textures/4k/earth_night.jpg",
+    "2k": "textures/2k/earth_night.jpg"
+  },
+  "earth_normal": {
+    "4k": "textures/4k/earth_normal.jpg",
+    "2k": "textures/2k/earth_normal.jpg"
+  },
+  "earth_roughness": {
+    "4k": "textures/4k/earth_roughness.jpg",
+    "2k": "textures/2k/earth_roughness.jpg"
+  },
+  "moon_color": {
+    "4k": "textures/4k/moon_color.jpg",
+    "2k": "textures/2k/moon_color.jpg"
+  },
+  "moon_normal": {
+    "4k": "textures/4k/moon_normal.jpg",
+    "2k": "textures/2k/moon_normal.jpg"
+  }
+}
