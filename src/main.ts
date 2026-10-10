@@ -12,7 +12,10 @@ import { AssetLibrary } from './core/assets';
 import type { FrameContext } from './core/frame';
 import { createRenderCore } from './core/renderer';
 import { Earth } from './scenes/earth';
+import { Mars } from './scenes/mars';
+import { Mercury } from './scenes/mercury';
 import { Moon } from './scenes/moon';
+import { Venus } from './scenes/venus';
 import { Placeholders } from './scenes/placeholders';
 import { SceneDirector } from './scenes/SceneDirector';
 import { Starfield } from './scenes/starfield';
@@ -81,7 +84,10 @@ async function boot(): Promise<void> {
   director.add(sun);
   director.add(new Earth(quality));
   director.add(new Moon(quality));
-  for (const id of ['sun', 'earth', 'moon']) placeholders.remove(id);
+  director.add(new Mercury(quality));
+  director.add(new Venus(quality));
+  director.add(new Mars(quality));
+  for (const id of ['sun', 'earth', 'moon', 'mercury', 'venus', 'mars']) placeholders.remove(id);
   director.add(placeholders);
 
   scroll.onMeasure((ranges) => {

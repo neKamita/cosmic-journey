@@ -86,11 +86,12 @@ export const CAMERA_KEYS: readonly CameraKey[] = [
   ),
 
   // 4. Mercury, then Venus.
-  key('inner', 0.16, viewFrom(MERCURY, 9, 0.6, 0.8, 0.15), MERCURY.position, { near: 0.05 }),
-  key('inner', 0.52, viewFrom(VENUS, 21, 0.6, 0.8, 0.12), VENUS.position),
+  key('inner', 0.16, viewFrom(MERCURY, 10, 0.6, 0.8, 0.15), MERCURY.position, { near: 0.05, fov: 38 }),
+  // Narrower FOV from further away keeps the off-centre sphere from stretching at the frame edge.
+  key('inner', 0.52, viewFrom(VENUS, 30, 0.6, 0.8, 0.12), VENUS.position, { fov: 32 }),
 
   // 5. Mars: approach, then skim the atmosphere.
-  key('mars', 0.18, viewFrom(MARS, 13, 0.55, 0.8, 0.15), MARS.position),
+  key('mars', 0.18, viewFrom(MARS, 14, 0.55, 0.8, 0.15), MARS.position, { fov: 40 }),
   key('mars', 0.45, viewFrom(MARS, 5.4, 0.3, 1, 0.38), MARS.position.clone().add(new Vector3(0, 1.4, 0)), {
     fov: 48,
     near: 0.02,
