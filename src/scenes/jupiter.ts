@@ -8,7 +8,7 @@ import type { QualitySettings } from '../config/quality';
 import type { TextureName } from '../core/assets';
 import type { FrameContext } from '../core/frame';
 import type { InitContext, ShadowFocus } from './SceneModule';
-import { bakeSurface } from './shared/bake';
+import { bakeSurface, disposeBaked } from './shared/bake';
 import { unitSphere } from './shared/planet';
 import { PlanetBody } from './shared/PlanetBody';
 
@@ -127,6 +127,8 @@ export class Jupiter extends PlanetBody {
           mesh.material.map = map;
           mesh.material.normalMap = null;
           mesh.material.needsUpdate = true;
+          disposeBaked(baked.map);
+          disposeBaked(baked.normal);
         });
       }
     }

@@ -80,6 +80,14 @@ export function bakeSurface(
   return { map, normal };
 }
 
+/**
+ * Frees a baked texture (its GPU texture and framebuffer) once a real map has replaced it. Only call
+ * this after no material references the texture any more.
+ */
+export function disposeBaked(texture: Texture | null): void {
+  texture?.renderTarget?.dispose();
+}
+
 /** Bake resolution per quality tier. */
 export function bakeWidth(tier: 'low' | 'medium' | 'high'): number {
   return tier === 'high' ? 2048 : tier === 'medium' ? 1024 : 512;

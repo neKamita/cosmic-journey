@@ -6,7 +6,7 @@ import type { TextureName } from '../../core/assets';
 import type { FrameContext } from '../../core/frame';
 import type { InitContext, SceneModule } from '../SceneModule';
 import { Atmosphere, type AtmosphereOptions } from './atmosphere';
-import { bakeSurface, bakeWidth } from './bake';
+import { bakeSurface, bakeWidth, disposeBaked } from './bake';
 import {
   HAZE_FRAGMENT,
   SunDirection,
@@ -108,6 +108,10 @@ export class PlanetBody implements SceneModule {
         if (!map) return;
         const normal = normalTexture ? await assets.queue(normalTexture) : null;
         this.applyMaps(map, normal ?? baked.normal);
+        // The placeholders the real maps replaced are unused now; the baked normal map stays when
+        // there is no real one.
+        disposeBaked(baked.map);
+        if (normal) disposeBaked(baked.normal);
       });
     }
   }
