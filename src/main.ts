@@ -38,7 +38,9 @@ import { AccentColor } from './ui/accent';
 import { DistanceCounter } from './ui/distanceCounter';
 import { LoaderScreen } from './ui/loader';
 import { ProgressNav } from './ui/progressNav';
+import type { SceneModule } from './scenes/SceneModule';
 import type { DebugPanel } from './ui/debug';
+import { whenIdle, yieldToMain } from './utils/schedule';
 import { initSectionReveal } from './ui/sectionReveal';
 
 const initDebug = async (...args: Parameters<typeof import('./ui/debug').initDebug>) =>
@@ -93,32 +95,39 @@ async function boot(): Promise<void> {
   const nav = new ProgressNav(qs<HTMLElement>('#progress-nav'), scroll);
   const accent = new AccentColor();
 
-  // Modules in route order: their textures stream in this order too.
+  // Modules in route order (their textures stream in this order too), built one per task so the
+  // loading screen stays responsive.
   const sun = new Sun(quality);
   const blackHole = new BlackHole();
-  for (const module of [
-    new Starfield(quality),
-    sun,
-    new Earth(quality),
-    new Moon(quality),
-    new Mercury(quality),
-    new Venus(quality),
-    new Mars(quality),
-    new AsteroidBelt(quality),
-    new Comets(quality),
-    new Jupiter(quality),
-    new Saturn(quality),
-    new Uranus(quality),
-    new Neptune(quality),
-    new Heliosphere(),
-    blackHole,
-    new MilkyWay(quality),
-    new Nebula(quality),
-    new GalaxyCluster(quality),
-    new CosmicWeb(quality),
-  ]) {
-    director.add(module);
+  const factories: Array<() => SceneModule> = [
+    () => new Starfield(quality),
+    () => sun,
+    () => new Earth(quality),
+    () => new Moon(quality),
+    () => new Mercury(quality),
+    () => new Venus(quality),
+    () => new Mars(quality),
+    () => new AsteroidBelt(quality),
+    () => new Comets(quality),
+    () => new Jupiter(quality),
+    () => new Saturn(quality),
+    () => new Uranus(quality),
+    () => new Neptune(quality),
+    () => new Heliosphere(),
+    () => blackHole,
+  ];
+  for (const create of factories) {
+    director.add(create());
+    await yieldToMain();
   }
+  // Hundreds of thousands of deep-space particles are only needed at the end of the journey:
+  // they are generated after the page is interactive, in idle time.
+  const deferredFactories: Array<() => SceneModule> = [
+    () => new MilkyWay(quality),
+    () => new Nebula(quality),
+    () => new GalaxyCluster(quality),
+    () => new CosmicWeb(quality),
+  ];
 
   scroll.onMeasure((ranges) => {
     path.resolve(ranges);
@@ -133,7 +142,9 @@ async function boot(): Promise<void> {
   const assets = new AssetLibrary(core.renderer, quality);
   await assets.preloadCritical((f) => loader.setProgress(0.08 + f * 0.62, 'загружаем Землю и Луну'));
   loader.setProgress(0.72, 'строим Солнечную систему');
-  await director.init({ renderer: core.renderer, quality, assets });
+  await director.init({ renderer: core.renderer, quality, assets }, (f) =>
+    loader.setProgress(0.72 + f * 0.13, 'строим Солнечную систему'),
+  );
   loader.setProgress(0.85, 'компилируем шейдеры');
 
   // Compile every module's shaders up front so entering a chapter never stalls on a shader build.
@@ -249,6 +260,16 @@ async function boot(): Promise<void> {
 
   gsap.ticker.add(frame);
   loader.done();
+
+  void (async () => {
+    for (const create of deferredFactories) {
+      await whenIdle(1200);
+      await director.addLate(create(), { renderer: core.renderer, quality, assets }, core.camera);
+    }
+  })().catch((error: unknown) => {
+    // The solar-system journey keeps working; only the deep-space chapters lose their content.
+    console.warn('[scene] deferred deep-space content failed to build', error);
+  });
 
   const renderState = () => ({
     progress: Number(ctx.progress.toFixed(4)),

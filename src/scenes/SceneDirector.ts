@@ -1,4 +1,5 @@
-import { AmbientLight, DirectionalLight, Vector3, type Scene } from 'three';
+import { AmbientLight, DirectionalLight, Vector3, type Camera, type Scene } from 'three';
+import { yieldToMain } from '../utils/schedule';
 import { resolveAnchor, type ChapterRanges } from '../camera/anchors';
 import type { QualitySettings } from '../config/quality';
 import { SUN } from '../config/layout';
@@ -21,6 +22,8 @@ export class SceneDirector {
 
   private readonly entries: Entry[] = [];
   private readonly lightDir = new Vector3();
+  private ranges: ChapterRanges | null = null;
+  private dpr = 1;
 
   constructor(
     private readonly scene: Scene,
@@ -42,16 +45,43 @@ export class SceneDirector {
     return this.entries.map((e) => e.module);
   }
 
-  async init(ctx: InitContext): Promise<void> {
-    await Promise.all(this.entries.map((e) => e.module.init?.(ctx)));
+  /**
+   * Initialises modules one at a time, yielding to the main thread in between so the loading
+   * screen keeps animating and no single task blocks input for long.
+   */
+  async init(ctx: InitContext, onProgress?: (fraction: number) => void): Promise<void> {
+    for (let i = 0; i < this.entries.length; i++) {
+      await this.entries[i]!.module.init?.(ctx);
+      onProgress?.((i + 1) / this.entries.length);
+      await yieldToMain();
+    }
+  }
+
+  /**
+   * Adds a module after start-up (heavy content only needed later in the journey): initialises it,
+   * keys it to the current chapter ranges and compiles its shaders before it joins the scene, so it
+   * never causes a hitch when it first appears.
+   */
+  async addLate(module: SceneModule, ctx: InitContext, camera: Camera): Promise<void> {
+    await module.init?.(ctx);
+    module.setPixelRatio?.(this.dpr);
+    const entry: Entry = { module, range: null };
+    if (this.ranges) this.resolveEntry(entry, this.ranges);
+    module.root.visible = true;
+    await ctx.renderer.compileAsync(module.root, camera, this.scene);
+    this.scene.add(module.root);
+    this.entries.push(entry);
   }
 
   resolve(ranges: ChapterRanges): void {
-    for (const entry of this.entries) {
-      const active = entry.module.active;
-      entry.range = active ? [resolveAnchor(active[0], ranges), resolveAnchor(active[1], ranges)] : null;
-      entry.module.resolve?.(ranges);
-    }
+    this.ranges = ranges;
+    for (const entry of this.entries) this.resolveEntry(entry, ranges);
+  }
+
+  private resolveEntry(entry: Entry, ranges: ChapterRanges): void {
+    const active = entry.module.active;
+    entry.range = active ? [resolveAnchor(active[0], ranges), resolveAnchor(active[1], ranges)] : null;
+    entry.module.resolve?.(ranges);
   }
 
   /** Makes every module visible, e.g. to compile all shaders up front. Next update() restores. */
@@ -94,6 +124,7 @@ export class SceneDirector {
   }
 
   setPixelRatio(dpr: number): void {
+    this.dpr = dpr;
     for (const entry of this.entries) entry.module.setPixelRatio?.(dpr);
   }
 

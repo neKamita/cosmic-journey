@@ -9,6 +9,7 @@ import {
 } from 'three';
 import manifestJson from '../config/textures.json';
 import type { QualitySettings } from '../config/quality';
+import { whenIdle } from '../utils/schedule';
 
 export type TextureName =
   | 'earth_day'
@@ -32,11 +33,7 @@ export type TextureName =
 type Manifest = Partial<Record<string, { '4k'?: string; '2k'?: string }>>;
 const MANIFEST = manifestJson as Manifest;
 
-const idle = (): Promise<void> =>
-  new Promise((resolve) => {
-    if ('requestIdleCallback' in window) window.requestIdleCallback(() => resolve(), { timeout: 600 });
-    else setTimeout(resolve, 60);
-  });
+const idle = (): Promise<void> => whenIdle();
 
 /** Maps holding colour (decoded as sRGB). Everything else is data (normals, roughness, coverage). */
 const COLOR_MAPS = new Set<TextureName>([

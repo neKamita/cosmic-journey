@@ -88,7 +88,7 @@ const KEYS = {
   milkyWay: [n('earth', 0, 0.45), n('sun', 0.18, 0.25), n('mars', 0.2, 0.75), n('heliopause', 0.2, 0.95), n('blackhole', 0.15, 0.25), n('galaxy', 0.1, 0)],
   ambient: [n('earth', 0, 0.035), n('blackhole', 0.2, 0.02)],
   vignette: [n('earth', 0, 0.38), n('sun', 0.18, 0.25), n('blackhole', 0.2, 0.55), n('galaxy', 0.3, 0.4), n('universe', 0.3, 0.5)],
-  aberration: [n('earth', 0, 0.0005), n('asteroids', 0.24, 0.0009), n('jupiter', 0.18, 0.0005), n('blackhole', 0.3, 0.0013), n('galaxy', 0.3, 0.0006)],
+  aberration: [n('earth', 0, 0.0004), n('asteroids', 0.24, 0.0006), n('jupiter', 0.18, 0.0004), n('blackhole', 0.3, 0.0007), n('galaxy', 0.3, 0.0004)],
   grain: [n('earth', 0, 0.06)],
   deepScale: [
     { at: at('galaxy', 0.3), value: 1 },
