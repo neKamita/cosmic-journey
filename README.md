@@ -4,6 +4,8 @@
 чёрной дыре Стрелец A*, Млечному Пути, скоплению галактик и космической паутине. Всё, что происходит
 в кадре, зависит от прокрутки страницы.
 
+**Демо:** <https://nekamita.github.io/cosmic-journey/>
+
 **Стек:** Vite, TypeScript, Three.js (WebGL2), postprocessing (pmndrs), GSAP + ScrollTrigger, Lenis.
 
 ## Команды
@@ -109,11 +111,15 @@ npm run typecheck    # только проверка типов
 ## Публикация
 
 `npm run build` собирает статический сайт в `dist/`. Для абсолютных ссылок на превью в соцсетях
-укажите адрес сайта в `.env`:
+укажите адрес сайта, а для хостинга в подпути — базовый путь:
 
 ```bash
-VITE_SITE_URL=https://example.com
+VITE_SITE_URL=https://example.com/journey
+VITE_BASE=/journey/
 ```
+
+Сайт публикуется на GitHub Pages workflow `.github/workflows/deploy.yml`: при каждом push в
+`main` он прогоняет тесты, собирает проект с `VITE_BASE=/<имя репозитория>/` и выкладывает `dist/`.
 
 ## Текстуры
 

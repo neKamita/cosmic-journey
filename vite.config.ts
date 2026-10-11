@@ -1,7 +1,12 @@
 import { defineConfig } from 'vitest/config';
 import glsl from 'vite-plugin-glsl';
 
+// Node globals for this config only; the app itself is typed for the browser.
+declare const process: { env: Record<string, string | undefined> };
+
 export default defineConfig({
+  // Sub-path for project hosting (GitHub Pages serves the site from /<repository>/).
+  base: process.env.VITE_BASE ?? '/',
   plugins: [
     glsl({
       include: ['**/*.glsl', '**/*.vert', '**/*.frag'],
