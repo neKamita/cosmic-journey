@@ -40,7 +40,7 @@ import { LoaderScreen } from './ui/loader';
 import { ProgressNav } from './ui/progressNav';
 import type { SceneModule } from './scenes/SceneModule';
 import type { DebugPanel } from './ui/debug';
-import { whenIdle, yieldToMain } from './utils/schedule';
+import { whenIdle, whenLaidOut, yieldToMain } from './utils/schedule';
 import { initSectionReveal } from './ui/sectionReveal';
 
 const initDebug = async (...args: Parameters<typeof import('./ui/debug').initDebug>) =>
@@ -77,6 +77,8 @@ async function boot(): Promise<void> {
   }
   document.documentElement.classList.add('js');
   loader.setProgress(0.05, 'готовим сцену');
+  // Embedded in a frame that is still hidden, there is nothing to measure yet: wait for layout.
+  await whenLaidOut(canvas);
 
   const forcedTier = tierFromQuery(location.search);
   let quality = QUALITY[forcedTier ?? 'medium'];
@@ -244,11 +246,15 @@ async function boot(): Promise<void> {
     debug?.update();
   };
 
-  window.addEventListener('resize', () => {
+  const onResize = (): void => {
     if (!core.resize()) return;
     director.setPixelRatio(core.size.dpr);
     postfx?.setSize(core.size.width, core.size.height);
-  });
+  };
+  // Window resizes cover DPR changes; the observer covers size changes without one (e.g. a frame
+  // that is shown or resized by its parent page).
+  window.addEventListener('resize', onResize);
+  new ResizeObserver(onResize).observe(canvas);
 
   scroll.init();
   initSectionReveal(
