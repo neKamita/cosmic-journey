@@ -5,6 +5,7 @@ import surface from '../shaders/planets/jupiter.glsl';
 import { at, resolveAnchor, type ChapterRanges } from '../camera/anchors';
 import { JUPITER, SUN } from '../config/layout';
 import type { QualitySettings } from '../config/quality';
+import type { TextureName } from '../core/assets';
 import type { FrameContext } from '../core/frame';
 import type { InitContext, ShadowFocus } from './SceneModule';
 import { bakeSurface } from './shared/bake';
@@ -27,6 +28,9 @@ interface MoonSpec {
  * azimuth ~2.27 rad.
  */
 const GRS_FACING_SPIN = Math.PI - 1.35 - 2.27;
+
+/** Real maps by moon index (Io, Europa); Ganymede and Callisto stay procedural. */
+const MOON_TEXTURES: Partial<Record<number, TextureName>> = { 0: 'io', 1: 'europa' };
 
 const MOONS: readonly MoonSpec[] = [
   // Io sits almost between Jupiter and the Sun so its shadow falls on the visible disk.
@@ -113,6 +117,18 @@ export class Jupiter extends PlanetBody {
       mesh.material.normalScale = new Vector2(1, 1);
       mesh.material.color.set('#ffffff');
       mesh.material.needsUpdate = true;
+
+      // Real NASA mosaics replace the procedural look where available. The baked relief does not
+      // match their features, so the normal map is dropped with them.
+      const real = MOON_TEXTURES[spec.index];
+      if (real) {
+        void ctx.assets.queue(real).then((map) => {
+          if (!map) return;
+          mesh.material.map = map;
+          mesh.material.normalMap = null;
+          mesh.material.needsUpdate = true;
+        });
+      }
     }
   }
 

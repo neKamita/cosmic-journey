@@ -28,7 +28,9 @@ export type TextureName =
   | 'saturn'
   | 'saturn_ring'
   | 'uranus'
-  | 'neptune';
+  | 'neptune'
+  | 'io'
+  | 'europa';
 
 type Manifest = Partial<Record<string, { '4k'?: string; '2k'?: string }>>;
 const MANIFEST = manifestJson as Manifest;
@@ -48,6 +50,8 @@ const COLOR_MAPS = new Set<TextureName>([
   'saturn_ring',
   'uranus',
   'neptune',
+  'io',
+  'europa',
 ]);
 
 /** Textures needed for the first screen; the loader waits for these. */

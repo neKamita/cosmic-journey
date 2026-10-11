@@ -42,6 +42,7 @@ sharp.cache(false);
 
 const NASA_EO = 'https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng';
 const MOON_KIT = 'https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720';
+const NASA_3D = 'https://raw.githubusercontent.com/nasa/NASA-3D-Resources/master/Images%20and%20Textures';
 
 /** Public-domain sources (NASA). Attribution is listed in README.md and in the site footer. */
 export const NASA_SOURCES = {
@@ -58,6 +59,12 @@ export const NASA_SOURCES = {
   },
   moonColor: { file: 'lroc_color_poles_4k.tif', url: `${MOON_KIT}/lroc_color_poles_4k.tif` },
   moonHeight: { file: 'ldem_16_uint.tif', url: `${MOON_KIT}/ldem_16_uint.tif` },
+  // NASA 3D Resources (https://github.com/nasa/NASA-3D-Resources). Their Jupiter, Saturn and
+  // Neptune maps are only 720x360 (sharper procedural versions are used instead), and the
+  // Ganymede and Callisto maps have large no-data gaps, so only these three are taken.
+  marsNasa: { file: 'nasa3d_mars.jpg', url: `${NASA_3D}/Mars/Mars.jpg` },
+  io: { file: 'nasa3d_io.jpg', url: `${NASA_3D}/Jupiter%20-%20Io%20%28A%29/Jupiter%20-%20Io%20%28A%29.jpg` },
+  europa: { file: 'nasa3d_europa.jpg', url: `${NASA_3D}/Jupiter%20-%20Europa/Jupiter%20-%20Europa.jpg` },
 };
 
 /**
@@ -247,6 +254,27 @@ async function processMoon(src) {
   }
 }
 
+async function processJupiterMoons(src) {
+  if (src.io) {
+    log('io: colour');
+    await emit('io', src.io, (w) => resized(src.io, w));
+  }
+  if (src.europa) {
+    log('europa: colour');
+    // The NASA mosaic is greyscale; give the ice its faint beige cast.
+    await emit('europa', src.europa, (w) =>
+      resized(src.europa, w)
+        .toColourspace('b-w')
+        .toColourspace('srgb')
+        .recomb([
+          [1, 0, 0],
+          [0, 0.94, 0],
+          [0, 0, 0.84],
+        ]),
+    );
+  }
+}
+
 async function processSss(src) {
   const plain = ['venusAtmosphere', 'jupiter', 'saturn', 'uranus', 'neptune'];
   const names = {
@@ -305,13 +333,17 @@ async function main() {
   const src = {};
   for (const [key, source] of Object.entries(NASA_SOURCES)) src[key] = await download(source);
   for (const [key, suffix] of Object.entries(SSS_SOURCES)) src[key] = await findSss(suffix);
+  // A manually added Solar System Scope map wins; otherwise fall back to NASA's.
+  const marsFromSss = Boolean(src.mars);
+  src.mars ??= src.marsNasa;
 
   const missingSss = Object.entries(SSS_SOURCES)
-    .filter(([key]) => !src[key])
+    .filter(([key]) => (key === 'mars' ? !marsFromSss : !src[key]))
     .map(([, suffix]) => suffix);
 
   await processEarth(src);
   await processMoon(src);
+  await processJupiterMoons(src);
   await processSss(src);
 
   const sorted = Object.fromEntries(Object.entries(manifest).sort(([a], [b]) => a.localeCompare(b)));

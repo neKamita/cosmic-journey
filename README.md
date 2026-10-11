@@ -141,8 +141,16 @@ VITE_BASE=/journey/
 | Земля, океаны (→ roughness, блик Солнца) | GEBCO bathymetry — `gebco_08_rev_bath_5400x2700.jpg` |
 | Луна, цвет | [NASA SVS CGI Moon Kit](https://svs.gsfc.nasa.gov/4720) — `lroc_color_poles_4k.tif` |
 | Луна, рельеф (→ normal map) | NASA SVS CGI Moon Kit — `ldem_16_uint.tif` |
+| Марс (normal map строится из яркости) | [NASA 3D Resources](https://github.com/nasa/NASA-3D-Resources) — `Mars/Mars.jpg` |
+| Ио | NASA 3D Resources — `Jupiter - Io (A)/Jupiter - Io (A).jpg` |
+| Европа | NASA 3D Resources — `Jupiter - Europa/Jupiter - Europa.jpg` |
 
-Исходники сохраняются в `textures-src/nasa/` (в git не попадают).
+Исходники сохраняются в `textures-src/nasa/` (в git не попадают). Мозаика Европы у NASA
+чёрно-белая, поэтому скрипт слегка тонирует её в бежевый цвет льда.
+
+Карты Юпитера, Сатурна и Нептуна в NASA 3D Resources есть только в разрешении 720×360, у Ганимеда и
+Каллисто в мозаиках пустые области без данных. Для них процедурные материалы выглядят лучше,
+поэтому эти карты не используются.
 
 ### 2. Обрабатывает карты Solar System Scope, скачанные вручную
 
@@ -161,12 +169,14 @@ VITE_BASE=/journey/
 | `2k_uranus.jpg` | Уран |
 | `2k_neptune.jpg` | Нептун |
 
-После этого запустите `npm run textures` ещё раз.
+После этого запустите `npm run textures` ещё раз. Карта Марса из Solar System Scope имеет приоритет
+над картой NASA, но уже собранный файл скрипт не перезаписывает. Если Марс был собран из NASA,
+запустите `npm run textures -- --rebuild`.
 
 Ключи скрипта: `--offline` (ничего не качать), `--rebuild` (пересобрать выходные файлы),
 `--force` (перекачать NASA и пересобрать всё).
 
-Солнце, спутники Юпитера, астероиды, кометы, чёрная дыра, галактики и космическая паутина
+Солнце, Ганимед и Каллисто, астероиды, кометы, чёрная дыра, галактики и космическая паутина
 процедурные (GLSL), текстуры для них не нужны.
 
 ## Структура
@@ -190,6 +200,9 @@ src/
 
 - Текстуры Земли и Луны: NASA Visible Earth / NASA Earth Observatory, NASA Scientific Visualization
   Studio (общественное достояние).
-- Текстуры планет: [Solar System Scope](https://www.solarsystemscope.com/textures/), CC BY 4.0.
+- Текстуры Марса, Ио и Европы: [NASA 3D Resources](https://github.com/nasa/NASA-3D-Resources)
+  (общественное достояние).
+- Текстуры планет: [Solar System Scope](https://www.solarsystemscope.com/textures/), CC BY 4.0
+  (если они добавлены в `textures-src/sss/`; в репозитории их нет).
 - Simplex noise: Ian McEwan, Ashima Arts, Stefan Gustavson (MIT).
 - Шрифты Inter и JetBrains Mono: SIL Open Font License.

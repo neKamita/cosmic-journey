@@ -19,6 +19,18 @@
     "4k": "textures/4k/earth_roughness.jpg",
     "2k": "textures/2k/earth_roughness.jpg"
   },
+  "europa": {
+    "2k": "textures/2k/europa.jpg"
+  },
+  "io": {
+    "2k": "textures/2k/io.jpg"
+  },
+  "mars": {
+    "2k": "textures/2k/mars.jpg"
+  },
+  "mars_normal": {
+    "2k": "textures/2k/mars_normal.jpg"
+  },
   "moon_color": {
     "4k": "textures/4k/moon_color.jpg",
     "2k": "textures/2k/moon_color.jpg"
